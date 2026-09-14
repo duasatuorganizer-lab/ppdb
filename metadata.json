@@ -1,0 +1,6 @@
+{
+  "name": "PPDB SIT At Taufiq Bogor",
+  "description": "Aplikasi Pendaftaran Peserta Didik Baru (PPDB) Sekolah Islam Terpadu At Taufiq (TKIT, SDIT, SMPIT) Tahun Ajaran 2027/2028 lengkap dengan informasi biaya, simulasi diskon, formulir pendaftaran, dan verifikasi status.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
