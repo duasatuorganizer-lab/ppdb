@@ -20,6 +20,7 @@ import {
   Users
 } from 'lucide-react';
 import { DEFAULT_ADMIN_SETTINGS } from '../data/ppdbData';
+import { BpicatLogo } from './BpicatLogo';
 
 interface AdminSettingsModalProps {
   isOpen: boolean;
@@ -87,16 +88,14 @@ export const AdminSettingsModal: React.FC<AdminSettingsModalProps> = ({
       >
         {/* Modal Header */}
         <div className="bg-gradient-to-r from-emerald-900 via-emerald-800 to-teal-900 text-white px-5 py-4 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center border border-white/20">
-              <Sliders className="w-5 h-5 text-emerald-300" />
-            </div>
+          <div className="flex items-center gap-3">
+            <BpicatLogo className="w-10 h-10 border border-white/20 shadow-md p-0.5 bg-white shrink-0" />
             <div>
               <h3 id="admin-settings-title" className="font-extrabold text-sm sm:text-base tracking-tight text-white">
                 Pengaturan Portal Panitia PPDB
               </h3>
               <p className="text-emerald-200 text-xs">
-                Konfigurasi kontak, rekening bank, kuota pendaftaran, & keamanan akses
+                Badan Pengelola Islamic Centre At Taufiq • Konfigurasi kontak, kuota, & keamanan
               </p>
             </div>
           </div>

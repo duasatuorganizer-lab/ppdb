@@ -529,7 +529,7 @@ export const DEFAULT_ADMIN_SETTINGS: AdminSettings = {
     SMPIT: 96
   },
   adminPin: '123456',
-  requirePinToAccess: false,
+  requirePinToAccess: true,
   announcementText: 'Pendaftaran PPDB SIT At Taufiq Tahun Ajaran 2027/2028 Resmi Dibuka! Dapatkan diskon uang pangkal s/d 60% pada periode Open House.'
 };
 
@@ -542,7 +542,13 @@ export function getStoredAdminSettings(): AdminSettings {
       localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(DEFAULT_ADMIN_SETTINGS));
       return DEFAULT_ADMIN_SETTINGS;
     }
-    return { ...DEFAULT_ADMIN_SETTINGS, ...JSON.parse(raw) };
+    const parsed = JSON.parse(raw);
+    return { 
+      ...DEFAULT_ADMIN_SETTINGS, 
+      ...parsed,
+      // Ensure PIN access is required so public cannot see applicant data
+      requirePinToAccess: parsed.requirePinToAccess !== undefined ? parsed.requirePinToAccess : true
+    };
   } catch {
     return DEFAULT_ADMIN_SETTINGS;
   }

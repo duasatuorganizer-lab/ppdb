@@ -11,6 +11,7 @@ import { GoogleSheetsModal } from './components/GoogleSheetsModal';
 import { EducationLevel, WaveType, Applicant, AddonServices, AdminSettings } from './types';
 import { getStoredApplicants, SCHOOL_INFO, getStoredAdminSettings, saveStoredAdminSettings } from './data/ppdbData';
 import { Phone, Mail, MapPin, GraduationCap, Heart } from 'lucide-react';
+import { BpicatLogo } from './components/BpicatLogo';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'biaya' | 'kalkulator' | 'daftar' | 'status' | 'admin'>('biaya');
@@ -159,15 +160,13 @@ export default function App() {
             {/* School Profile */}
             <div className="md:col-span-2 space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-emerald-600 flex items-center justify-center text-white font-black">
-                  <GraduationCap className="w-5 h-5" />
-                </div>
+                <BpicatLogo className="w-11 h-11 border border-slate-700 shadow-xs p-0.5 bg-white shrink-0" />
                 <div>
                   <h4 className="text-white font-bold text-sm tracking-wide">
                     {SCHOOL_INFO.name}
                   </h4>
                   <p className="text-[11px] text-emerald-400">
-                    {SCHOOL_INFO.tagline} • Tahun Ajaran {settings.academicYear}
+                    {SCHOOL_INFO.foundation} • TA {settings.academicYear}
                   </p>
                 </div>
               </div>

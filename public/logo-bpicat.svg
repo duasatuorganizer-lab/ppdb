@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="100%" height="100%">
+  <defs>
+    <!-- Path for the top arc text: BADAN PENGELOLA ISLAMIC CENTRE AT TAUFIQ -->
+    <path id="topArc" d="M 38,150 A 112,112 0 1,1 262,150" fill="none" />
+    <!-- Path for the bottom arc text: MENCETAK GENERASI ISLAMI -->
+    <path id="bottomArc" d="M 256,150 A 106,106 0 0,1 44,150" fill="none" />
+  </defs>
+
+  <!-- Outer background circle -->
+  <circle cx="150" cy="150" r="148" fill="#FFFFFF" />
+
+  <!-- Outer Red Ring -->
+  <circle cx="150" cy="150" r="142" fill="none" stroke="#DC2626" stroke-width="6.5" />
+
+  <!-- Inner thin Red/Blue line boundary -->
+  <circle cx="150" cy="150" r="102" fill="none" stroke="#DC2626" stroke-width="2.5" />
+
+  <!-- Upper Arc Text: BADAN PENGELOLA ISLAMIC CENTRE AT TAUFIQ -->
+  <text fill="#233876" font-family="'Arial Black', Arial, 'Trebuchet MS', sans-serif" font-weight="900" font-size="14.8" letter-spacing="0.5">
+    <textPath href="#topArc" startOffset="50%" text-anchor="middle">
+      BADAN PENGELOLA ISLAMIC CENTRE AT TAUFIQ
+    </textPath>
+  </text>
+
+  <!-- Lower Arc Text: ★ MENCETAK GENERASI ISLAMI ★ -->
+  <text fill="#DC2626" font-family="'Arial Black', Arial, 'Trebuchet MS', sans-serif" font-weight="900" font-size="14.2" letter-spacing="1">
+    <textPath href="#bottomArc" startOffset="50%" text-anchor="middle">
+      ★ MENCETAK GENERASI ISLAMI ★
+    </textPath>
+  </text>
+
+  <!-- Central Symbol: Arabic Letter 'Taa' Smiling Face -->
+  <!-- Left Eye Dot -->
+  <circle cx="141" cy="120" r="10.5" fill="#233876" />
+  <!-- Right Eye Dot -->
+  <circle cx="173" cy="112" r="10.5" fill="#233876" />
+
+  <!-- Smile arc (Arabic letter Taa bowl) -->
+  <path d="M 80,118 C 76,170 85,210 150,210 C 215,210 226,170 220,105" 
+        fill="none" 
+        stroke="#233876" 
+        stroke-width="23" 
+        stroke-linecap="round" />
+</svg>

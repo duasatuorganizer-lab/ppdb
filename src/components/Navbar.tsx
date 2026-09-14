@@ -1,7 +1,8 @@
 import React from 'react';
-import { GraduationCap, PhoneCall, ShieldCheck, Calculator, UserCheck, FileText, LayoutDashboard, FileSpreadsheet } from 'lucide-react';
+import { GraduationCap, PhoneCall, ShieldCheck, Calculator, UserCheck, FileText, LayoutDashboard, FileSpreadsheet, Lock } from 'lucide-react';
 import { SCHOOL_INFO } from '../data/ppdbData';
 import { AdminSettings } from '../types';
+import { BpicatLogo } from './BpicatLogo';
 
 interface NavbarProps {
   activeTab: 'biaya' | 'kalkulator' | 'daftar' | 'status' | 'admin';
@@ -62,20 +63,18 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, applica
             className="flex items-center gap-3 cursor-pointer group"
             onClick={() => setActiveTab('biaya')}
           >
-            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-800 flex items-center justify-center text-white shadow-md shadow-emerald-700/20 group-hover:scale-105 transition-transform">
-              <GraduationCap className="w-6 h-6" />
-            </div>
+            <BpicatLogo className="w-11 h-11 border border-slate-200/90 shadow-sm p-0.5 group-hover:scale-105 transition-transform" />
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-lg font-extrabold tracking-tight text-slate-900 leading-tight">
                   SIT AT TAUFIQ
                 </span>
                 <span className="text-[10px] font-bold bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded border border-amber-200">
-                  TP {SCHOOL_INFO.academicYear}
+                  TP {academicYear}
                 </span>
               </div>
               <p className="text-xs text-slate-500 font-medium">
-                TKIT • SDIT • SMPIT <span className="text-emerald-700 font-semibold">— Mencetak Generasi Islami</span>
+                BPICAT • TKIT • SDIT • SMPIT <span className="text-emerald-700 font-semibold">— Mencetak Generasi Islami</span>
               </p>
             </div>
           </div>
@@ -132,19 +131,18 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, applica
 
             <button
               onClick={() => setActiveTab('admin')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all relative ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all relative ${
                 activeTab === 'admin'
                   ? 'bg-slate-900 text-white shadow-xs'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
               }`}
+              title="Portal Khusus Panitia PPDB (Memerlukan PIN)"
             >
-              <LayoutDashboard className="w-3.5 h-3.5" />
-              Panitia PPDB
-              {applicantCount > 0 && (
-                <span className="ml-1 bg-emerald-500 text-white text-[10px] px-1.5 py-0.2 rounded-full font-bold">
-                  {applicantCount}
-                </span>
-              )}
+              <Lock className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+              <span>Panitia PPDB</span>
+              <span className="text-[10px] bg-slate-200 text-slate-700 font-semibold px-1 py-0.2 rounded group-hover:bg-slate-300">
+                PIN
+              </span>
             </button>
           </nav>
 
@@ -196,11 +194,12 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, applica
           </button>
           <button
             onClick={() => setActiveTab('admin')}
-            className={`px-2.5 py-1.5 rounded-lg font-medium whitespace-nowrap ${
+            className={`px-2.5 py-1.5 rounded-lg font-medium whitespace-nowrap flex items-center gap-1 ${
               activeTab === 'admin' ? 'bg-slate-900 text-white font-semibold' : 'text-slate-600'
             }`}
           >
-            Panitia ({applicantCount})
+            <Lock className="w-3 h-3 text-amber-400" />
+            <span>Panitia</span>
           </button>
         </div>
       </div>

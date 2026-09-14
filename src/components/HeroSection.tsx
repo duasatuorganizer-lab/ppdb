@@ -1,6 +1,7 @@
 import React from 'react';
 import { Sparkles, Calendar, ArrowRight, Calculator, CheckCircle2, ShieldCheck, HeartHandshake, Award } from 'lucide-react';
 import { SCHOOL_INFO, WAVE_DETAILS } from '../data/ppdbData';
+import { BpicatLogo } from './BpicatLogo';
 
 interface HeroSectionProps {
   onStartRegistration: () => void;
@@ -22,9 +23,17 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           {/* Main Hero Copy */}
           <div className="lg:col-span-7 space-y-5 text-left">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-700/80 border border-emerald-500/40 text-emerald-200 text-xs font-semibold backdrop-blur-xs">
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-              <span>Penerimaan Peserta Didik Baru (PPDB) TP {SCHOOL_INFO.academicYear}</span>
+            <div className="flex items-center gap-3.5">
+              <BpicatLogo className="w-14 h-14 sm:w-16 sm:h-16 border-2 border-emerald-400/40 shadow-xl p-0.5 bg-white shrink-0 hover:scale-105 transition-transform" />
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-700/80 border border-emerald-500/40 text-emerald-200 text-xs font-semibold backdrop-blur-xs">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                  <span>Penerimaan Peserta Didik Baru (PPDB) TP {SCHOOL_INFO.academicYear}</span>
+                </div>
+                <div className="text-xs text-emerald-200/90 font-medium mt-1">
+                  Badan Pengelola Islamic Centre At Taufiq (BPICAT)
+                </div>
+              </div>
             </div>
 
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-tight">

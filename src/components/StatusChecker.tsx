@@ -11,8 +11,10 @@ import {
   FileText, 
   ShieldCheck, 
   Award,
-  AlertCircle
+  AlertCircle,
+  Lock
 } from 'lucide-react';
+import { BpicatLogo } from './BpicatLogo';
 
 interface StatusCheckerProps {
   initialSearchQuery?: string;
@@ -34,13 +36,13 @@ export const StatusChecker: React.FC<StatusCheckerProps> = ({ initialSearchQuery
     if (!q) return;
 
     const all = getStoredApplicants();
+    // Strict privacy protection: only allow lookup by exact Registration ID, NIK, or Parent WhatsApp
     const found = all.find(
       (a) =>
         a.id.toLowerCase() === q ||
         a.student.nik === q ||
         a.parent.fatherPhone.replace(/\D/g, '') === q.replace(/\D/g, '') ||
-        a.parent.motherPhone.replace(/\D/g, '') === q.replace(/\D/g, '') ||
-        a.student.fullName.toLowerCase().includes(q)
+        a.parent.motherPhone.replace(/\D/g, '') === q.replace(/\D/g, '')
     );
 
     setApplicant(found || null);
@@ -134,60 +136,41 @@ export const StatusChecker: React.FC<StatusCheckerProps> = ({ initialSearchQuery
       {/* Results View */}
       {searched && !applicant && (
         <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center max-w-lg mx-auto shadow-sm">
-          <div className="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto mb-3">
-            <AlertCircle className="w-6 h-6" />
+          <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center mx-auto mb-3">
+            <Lock className="w-6 h-6" />
           </div>
           <h3 className="font-bold text-slate-900 text-base">Data Pendaftaran Tidak Ditemukan</h3>
-          <p className="text-xs text-slate-500 mt-1">
-            Pastikan Nomor Registrasi atau NIK yang Anda masukkan sudah sesuai. Atau hubungi layanan bantuan panitia jika terdapat kendala.
+          <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto">
+            Pastikan Nomor Registrasi atau NIK yang Anda masukkan sudah tepat. Demi perlindungan privasi, pencarian status dibatasi hanya menggunakan ID Registrasi pendaftar, NIK anak, atau No. WhatsApp orang tua.
           </p>
-          <div className="mt-4 pt-4 border-t border-slate-100">
-            <p className="text-xs text-slate-600">
-              Contoh ID terdaftar untuk pengujian: <br />
-              <button 
-                onClick={() => { setQuery('PPDB-2027-TK-001'); handleSearch('PPDB-2027-TK-001'); }} 
-                className="text-emerald-700 font-bold hover:underline cursor-pointer"
-              >
-                PPDB-2027-TK-001
-              </button>
-              {' • '}
-              <button 
-                onClick={() => { setQuery('PPDB-2027-SD-012'); handleSearch('PPDB-2027-SD-012'); }} 
-                className="text-emerald-700 font-bold hover:underline cursor-pointer"
-              >
-                PPDB-2027-SD-012
-              </button>
-              {' • '}
-              <button 
-                onClick={() => { setQuery('PPDB-2027-SMP-005'); handleSearch('PPDB-2027-SMP-005'); }} 
-                className="text-emerald-700 font-bold hover:underline cursor-pointer"
-              >
-                PPDB-2027-SMP-005
-              </button>
-            </p>
+          <div className="mt-4 pt-3 border-t border-slate-100 text-xs text-slate-400">
+            Butuh bantuan? Silakan hubungi Hotline Panitia PPDB SIT At Taufiq melalui WhatsApp.
           </div>
         </div>
       )}
 
       {applicant && (
         <div className="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden print:border-none print:shadow-none">
-          {/* Card Header with Islamic School Theme */}
+          {/* Card Header with Islamic School Theme & Logo */}
           <div className="bg-gradient-to-r from-emerald-800 to-teal-900 text-white p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              <div className="text-[11px] text-emerald-300 font-semibold tracking-wider uppercase">
-                {SCHOOL_INFO.shortName} • PPDB TP {SCHOOL_INFO.academicYear}
+            <div className="flex items-center gap-3.5">
+              <BpicatLogo className="w-12 h-12 border border-white/20 shadow-md p-0.5 bg-white shrink-0" />
+              <div>
+                <div className="text-[11px] text-emerald-300 font-semibold tracking-wider uppercase">
+                  {SCHOOL_INFO.shortName} • PPDB TP {SCHOOL_INFO.academicYear}
+                </div>
+                <h3 className="text-xl sm:text-2xl font-black text-white mt-0.5">
+                  {applicant.student.fullName}
+                </h3>
+                <p className="text-xs text-emerald-100">
+                  Jenjang: <strong className="text-amber-300">{applicant.financial.levelName}</strong> ({applicant.financial.waveName})
+                </p>
               </div>
-              <h3 className="text-xl sm:text-2xl font-black text-white mt-0.5">
-                {applicant.student.fullName}
-              </h3>
-              <p className="text-xs text-emerald-100">
-                Jenjang: <strong className="text-amber-300">{applicant.financial.levelName}</strong> ({applicant.financial.waveName})
-              </p>
             </div>
 
             <div className="text-left sm:text-right">
               <div className="text-xs text-emerald-200">No. Registrasi:</div>
-              <div className="text-xl font-black tracking-wider text-amber-300 bg-emerald-950/60 px-3 py-1 rounded-lg border border-emerald-600/40">
+              <div className="text-xl font-black tracking-wider text-amber-300 bg-emerald-950/60 px-3 py-1 rounded-lg border border-emerald-600/40 font-mono">
                 {applicant.id}
               </div>
             </div>
