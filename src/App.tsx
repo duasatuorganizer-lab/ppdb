@@ -7,13 +7,15 @@ import { RegistrationForm } from './components/RegistrationForm';
 import { StatusChecker } from './components/StatusChecker';
 import { AdminPortal } from './components/AdminPortal';
 import { SchoolHighlights } from './components/SchoolHighlights';
-import { EducationLevel, WaveType, Applicant, AddonServices } from './types';
-import { getStoredApplicants, SCHOOL_INFO } from './data/ppdbData';
+import { GoogleSheetsModal } from './components/GoogleSheetsModal';
+import { EducationLevel, WaveType, Applicant, AddonServices, AdminSettings } from './types';
+import { getStoredApplicants, SCHOOL_INFO, getStoredAdminSettings, saveStoredAdminSettings } from './data/ppdbData';
 import { Phone, Mail, MapPin, GraduationCap, Heart } from 'lucide-react';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'biaya' | 'kalkulator' | 'daftar' | 'status' | 'admin'>('biaya');
   const [applicants, setApplicants] = useState<Applicant[]>([]);
+  const [settings, setSettings] = useState<AdminSettings>(() => getStoredAdminSettings());
   
   // Prefill configuration for registration form
   const [selectedPlan, setSelectedPlan] = useState<{
@@ -27,6 +29,8 @@ export default function App() {
   });
 
   const [statusSearchQuery, setStatusSearchQuery] = useState<string>('');
+  const [isSheetsModalOpen, setIsSheetsModalOpen] = useState(false);
+  const [activeSpreadsheetId, setActiveSpreadsheetId] = useState<string | null>(null);
 
   useEffect(() => {
     setApplicants(getStoredApplicants());
@@ -62,6 +66,11 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleSaveSettings = (newSettings: AdminSettings) => {
+    setSettings(newSettings);
+    saveStoredAdminSettings(newSettings);
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans selection:bg-emerald-600 selection:text-white">
       {/* Top Navbar */}
@@ -69,6 +78,8 @@ export default function App() {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         applicantCount={applicants.length}
+        onOpenGoogleSheets={() => setIsSheetsModalOpen(true)}
+        settings={settings}
       />
 
       {/* Main Content Body */}
@@ -134,6 +145,8 @@ export default function App() {
               applicants={applicants}
               onUpdateApplicants={setApplicants}
               onViewApplicantStatus={handleViewApplicantStatus}
+              settings={settings}
+              onSaveSettings={handleSaveSettings}
             />
           </div>
         )}
@@ -154,7 +167,7 @@ export default function App() {
                     {SCHOOL_INFO.name}
                   </h4>
                   <p className="text-[11px] text-emerald-400">
-                    {SCHOOL_INFO.tagline} • Tahun Ajaran {SCHOOL_INFO.academicYear}
+                    {SCHOOL_INFO.tagline} • Tahun Ajaran {settings.academicYear}
                   </p>
                 </div>
               </div>
@@ -223,15 +236,15 @@ export default function App() {
               <ul className="space-y-2.5 text-xs text-slate-400">
                 <li className="flex items-start gap-2">
                   <MapPin className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                  <span>{SCHOOL_INFO.address}</span>
+                  <span>{settings.address || SCHOOL_INFO.address}</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Phone className="w-4 h-4 text-emerald-500 shrink-0" />
-                  <span>{SCHOOL_INFO.whatsapp} / {SCHOOL_INFO.phone}</span>
+                  <span>{settings.whatsapp || SCHOOL_INFO.whatsapp} / {settings.phone || SCHOOL_INFO.phone}</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Mail className="w-4 h-4 text-emerald-500 shrink-0" />
-                  <span>{SCHOOL_INFO.email}</span>
+                  <span>{settings.email || SCHOOL_INFO.email}</span>
                 </li>
               </ul>
             </div>
@@ -247,6 +260,15 @@ export default function App() {
           </div>
         </div>
       </footer>
+
+      {/* Global Google Sheets Synchronization & Export Modal */}
+      <GoogleSheetsModal
+        isOpen={isSheetsModalOpen}
+        onClose={() => setIsSheetsModalOpen(false)}
+        applicants={applicants}
+        activeSpreadsheetId={activeSpreadsheetId}
+        onSetActiveSpreadsheet={(id) => setActiveSpreadsheetId(id)}
+      />
     </div>
   );
 }

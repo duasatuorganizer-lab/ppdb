@@ -1,14 +1,21 @@
 import React from 'react';
-import { GraduationCap, PhoneCall, ShieldCheck, Calculator, UserCheck, FileText, LayoutDashboard } from 'lucide-react';
+import { GraduationCap, PhoneCall, ShieldCheck, Calculator, UserCheck, FileText, LayoutDashboard, FileSpreadsheet } from 'lucide-react';
 import { SCHOOL_INFO } from '../data/ppdbData';
+import { AdminSettings } from '../types';
 
 interface NavbarProps {
   activeTab: 'biaya' | 'kalkulator' | 'daftar' | 'status' | 'admin';
   setActiveTab: (tab: 'biaya' | 'kalkulator' | 'daftar' | 'status' | 'admin') => void;
   applicantCount: number;
+  onOpenGoogleSheets?: () => void;
+  settings?: AdminSettings;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, applicantCount }) => {
+export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, applicantCount, onOpenGoogleSheets, settings }) => {
+  const academicYear = settings?.academicYear || SCHOOL_INFO.academicYear;
+  const whatsapp = settings?.whatsapp || SCHOOL_INFO.whatsapp;
+  const announcement = settings?.announcementText || `Tahun Ajaran ${academicYear} | Dapatkan Diskon Uang Pangkal s/d 60%`;
+
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-emerald-100 shadow-xs">
       {/* Top Notification Bar */}
@@ -17,21 +24,31 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, applica
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1 bg-emerald-700/80 px-2 py-0.5 rounded font-semibold text-[11px]">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse"></span>
-              PPDB AKTIF
+              {settings?.isOpen !== false ? 'PPDB AKTIF' : 'PPDB DITUTUP SEMENTARA'}
             </span>
             <span className="text-emerald-100 hidden sm:inline">
-              Tahun Ajaran {SCHOOL_INFO.academicYear} | Dapatkan Diskon Uang Pangkal s/d 60%
+              {announcement}
             </span>
           </div>
-          <div className="flex items-center gap-4 text-[11px]">
+          <div className="flex items-center gap-3 text-[11px]">
+            {onOpenGoogleSheets && (
+              <button
+                onClick={onOpenGoogleSheets}
+                className="flex items-center gap-1.5 bg-emerald-900/80 hover:bg-emerald-700 px-2.5 py-0.5 rounded text-emerald-100 hover:text-white transition-colors cursor-pointer border border-emerald-700"
+                title="Buka Sinkronisasi Google Sheets"
+              >
+                <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-300" />
+                <span className="font-semibold">Google Sheets</span>
+              </button>
+            )}
             <a
-              href={`https://wa.me/62${SCHOOL_INFO.whatsapp.replace(/\D/g, '').replace(/^0/, '')}?text=Halo%20Panitia%20PPDB%20SIT%20At%20Taufiq,%20saya%20ingin%20bertanya%20tentang%20pendaftaran`}
+              href={`https://wa.me/62${whatsapp.replace(/\D/g, '').replace(/^0/, '')}?text=Halo%20Panitia%20PPDB%20SIT%20At%20Taufiq,%20saya%20ingin%20bertanya%20tentang%20pendaftaran`}
               target="_blank"
               rel="noreferrer"
               className="flex items-center gap-1 hover:text-white transition-colors"
             >
               <PhoneCall className="w-3 h-3 text-emerald-300" />
-              <span>Hotline WA: {SCHOOL_INFO.whatsapp}</span>
+              <span>Hotline WA: {whatsapp}</span>
             </a>
           </div>
         </div>

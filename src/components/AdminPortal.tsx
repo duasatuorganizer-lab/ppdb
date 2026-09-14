@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Applicant, ApplicantStatus, EducationLevel, WaveType } from '../types';
-import { formatRupiah, saveStoredApplicants, INITIAL_APPLICANTS } from '../data/ppdbData';
+import { Applicant, ApplicantStatus, EducationLevel, WaveType, AdminSettings } from '../types';
+import { formatRupiah, saveStoredApplicants, INITIAL_APPLICANTS, getStoredAdminSettings, saveStoredAdminSettings } from '../data/ppdbData';
 import { 
   Users, 
   CheckCircle2, 
@@ -15,24 +15,90 @@ import {
   Printer, 
   CreditCard,
   Award,
-  ChevronDown
+  ChevronDown,
+  FileSpreadsheet,
+  ExternalLink,
+  Sliders,
+  Lock,
+  Unlock,
+  KeyRound,
+  ShieldCheck,
+  AlertCircle
 } from 'lucide-react';
+import { GoogleSheetsModal } from './GoogleSheetsModal';
+import { AdminCharts } from './AdminCharts';
+import { AdminSettingsModal } from './AdminSettingsModal';
 
 interface AdminPortalProps {
   applicants: Applicant[];
   onUpdateApplicants: (updated: Applicant[]) => void;
   onViewApplicantStatus: (id: string) => void;
+  onOpenGoogleSheets?: () => void;
+  settings?: AdminSettings;
+  onSaveSettings?: (newSettings: AdminSettings) => void;
 }
 
 export const AdminPortal: React.FC<AdminPortalProps> = ({
   applicants,
   onUpdateApplicants,
-  onViewApplicantStatus
+  onViewApplicantStatus,
+  settings: propSettings,
+  onSaveSettings: propOnSaveSettings
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [levelFilter, setLevelFilter] = useState<string>('ALL');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [editingApplicant, setEditingApplicant] = useState<Applicant | null>(null);
+
+  // Settings State
+  const [currentSettings, setCurrentSettings] = useState<AdminSettings>(
+    propSettings || getStoredAdminSettings()
+  );
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+
+  // Sync propSettings if passed
+  React.useEffect(() => {
+    if (propSettings) {
+      setCurrentSettings(propSettings);
+    }
+  }, [propSettings]);
+
+  // PIN security gate state
+  const [isUnlocked, setIsUnlocked] = useState<boolean>(() => {
+    const s = propSettings || getStoredAdminSettings();
+    return !s.requirePinToAccess;
+  });
+  const [pinInput, setPinInput] = useState('');
+  const [pinError, setPinError] = useState<string | null>(null);
+
+  const handleUnlock = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (pinInput === currentSettings.adminPin) {
+      setIsUnlocked(true);
+      setPinError(null);
+      setPinInput('');
+    } else {
+      setPinError('PIN salah! Silakan coba lagi atau gunakan PIN standar: 123456');
+    }
+  };
+
+  const handleSaveSettingsInternal = (newSettings: AdminSettings) => {
+    setCurrentSettings(newSettings);
+    saveStoredAdminSettings(newSettings);
+    if (propOnSaveSettings) {
+      propOnSaveSettings(newSettings);
+    }
+    // If PIN requirement was disabled, unlock automatically
+    if (!newSettings.requirePinToAccess) {
+      setIsUnlocked(true);
+    }
+  };
+
+  // Google Sheets state
+  const [isSheetsModalOpen, setIsSheetsModalOpen] = useState(false);
+  const [activeSheetId, setActiveSheetId] = useState<string | null>(null);
+  const [activeSheetTitle, setActiveSheetTitle] = useState<string | null>(null);
+  const [activeSheetUrl, setActiveSheetUrl] = useState<string | null>(null);
 
   // Edit form state
   const [newStatus, setNewStatus] = useState<ApplicantStatus>('MENUNGGU_VERIFIKASI');
@@ -158,6 +224,66 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     document.body.removeChild(link);
   };
 
+  // If PIN protection is enabled and not unlocked yet
+  if (currentSettings.requirePinToAccess && !isUnlocked) {
+    return (
+      <section className="py-16 px-4 max-w-md mx-auto">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-xl p-6 sm:p-8 text-center space-y-5">
+          <div className="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center mx-auto border border-emerald-200 shadow-xs">
+            <Lock className="w-7 h-7 text-emerald-700" />
+          </div>
+          <div>
+            <h2 className="text-xl font-extrabold text-slate-900">
+              Akses Portal Panitia Terkunci
+            </h2>
+            <p className="text-slate-500 text-xs mt-1.5 leading-relaxed">
+              Portal ini dilindungi PIN keamanan panitia PPDB SIT At Taufiq. Silakan masukkan PIN untuk melanjutkan verifikasi data pendaftar.
+            </p>
+          </div>
+
+          <form onSubmit={handleUnlock} className="space-y-4 text-left">
+            {pinError && (
+              <div className="bg-rose-50 border border-rose-300 text-rose-800 text-xs p-3 rounded-xl flex items-center gap-2 font-medium">
+                <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                <span>{pinError}</span>
+              </div>
+            )}
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                Kode PIN Panitia
+              </label>
+              <div className="relative">
+                <KeyRound className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="password"
+                  autoFocus
+                  maxLength={10}
+                  value={pinInput}
+                  onChange={(e) => setPinInput(e.target.value)}
+                  placeholder="Masukkan 6 angka PIN..."
+                  className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-300 text-slate-900 font-mono font-bold text-sm tracking-widest focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 rounded-xl text-xs transition-colors shadow-sm cursor-pointer flex items-center justify-center gap-1.5"
+            >
+              <ShieldCheck className="w-4 h-4 text-emerald-200" />
+              <span>Buka Akses Panitia</span>
+            </button>
+          </form>
+
+          <div className="bg-slate-50 rounded-xl p-3 border border-slate-200 text-[11px] text-slate-500">
+            Lupa PIN? PIN awal panitia adalah: <strong className="text-slate-800 font-mono">123456</strong>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-6">
       {/* Header */}
@@ -168,7 +294,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
               Portal Panitia PPDB SIT At Taufiq
             </h2>
             <span className="bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-0.5 rounded">
-              TP 2027/2028
+              TP {currentSettings.academicYear}
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-1">
@@ -176,13 +302,35 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Settings Button */}
+          <button
+            onClick={() => setIsSettingsModalOpen(true)}
+            className="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+            title="Pengaturan Portal Panitia"
+          >
+            <Sliders className="w-4 h-4 text-emerald-700" />
+            <span>Pengaturan</span>
+          </button>
+
+          {/* Google Sheets Sync & Export Button */}
+          <button
+            onClick={() => setIsSheetsModalOpen(true)}
+            className="bg-emerald-800 hover:bg-emerald-900 text-white font-bold px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer border border-emerald-700"
+          >
+            <FileSpreadsheet className="w-4 h-4 text-emerald-300" />
+            <span>Google Sheets</span>
+            {activeSheetId && (
+              <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse ml-0.5"></span>
+            )}
+          </button>
+
           <button
             onClick={exportToCSV}
             className="bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 font-bold px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
           >
-            <Download className="w-4 h-4 text-emerald-700" />
-            <span>Ekspor CSV / Excel</span>
+            <Download className="w-4 h-4 text-slate-600" />
+            <span>Ekspor CSV</span>
           </button>
 
           <button
@@ -192,8 +340,48 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           >
             <RotateCcw className="w-4 h-4" />
           </button>
+
+          {currentSettings.requirePinToAccess && (
+            <button
+              onClick={() => setIsUnlocked(false)}
+              title="Kunci Portal Panitia Sekarang"
+              className="bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-700 p-2 rounded-xl text-xs transition-colors cursor-pointer border border-slate-200"
+            >
+              <Lock className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </div>
+
+      {/* Connected Google Sheet Status Banner if active */}
+      {activeSheetId && activeSheetUrl && (
+        <div className="bg-emerald-50 border border-emerald-300 rounded-xl p-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs">
+          <div className="flex items-center gap-2 text-emerald-900 font-bold">
+            <FileSpreadsheet className="w-4 h-4 text-emerald-700 shrink-0" />
+            <span>Terhubung ke Google Sheets:</span>
+            <span className="font-semibold text-emerald-800 underline decoration-emerald-400">
+              {activeSheetTitle || 'PPDB SIT At Taufiq Data Pendaftar'}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <a
+              href={activeSheetUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="bg-white hover:bg-emerald-100/70 text-emerald-800 font-bold px-3 py-1 rounded-lg border border-emerald-300 flex items-center gap-1 text-[11px] transition-colors"
+            >
+              <ExternalLink className="w-3 h-3" />
+              <span>Buka di Google Sheets</span>
+            </a>
+            <button
+              onClick={() => setIsSheetsModalOpen(true)}
+              className="text-emerald-700 hover:text-emerald-900 font-bold text-[11px] underline cursor-pointer"
+            >
+              Kelola Sinkronisasi
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
@@ -229,6 +417,9 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           <div className="text-[10px] text-emerald-300 mt-0.5">Total komitmen pendaftar</div>
         </div>
       </div>
+
+      {/* Visual Data Charts (Recharts) */}
+      <AdminCharts applicants={applicants} />
 
       {/* Filter and Search Bar */}
       <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
@@ -523,6 +714,28 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           </div>
         </div>
       )}
+
+      {/* Google Sheets Synchronization Modal */}
+      <GoogleSheetsModal
+        isOpen={isSheetsModalOpen}
+        onClose={() => setIsSheetsModalOpen(false)}
+        applicants={applicants}
+        activeSpreadsheetId={activeSheetId}
+        onSetActiveSpreadsheet={(id, title, url) => {
+          setActiveSheetId(id);
+          setActiveSheetTitle(title || null);
+          setActiveSheetUrl(url || null);
+        }}
+      />
+
+      {/* Admin Settings Modal */}
+      <AdminSettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={() => setIsSettingsModalOpen(false)}
+        settings={currentSettings}
+        onSaveSettings={handleSaveSettingsInternal}
+        applicants={applicants}
+      />
     </section>
   );
 };

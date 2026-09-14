@@ -1,4 +1,4 @@
-import { EducationLevel, LevelFeeStructure, WaveType, WaveInfo, Applicant, FinancialBreakdown } from '../types';
+import { EducationLevel, LevelFeeStructure, WaveType, WaveInfo, Applicant, FinancialBreakdown, AdminSettings } from '../types';
 
 export const SCHOOL_INFO = {
   name: 'Sekolah Islam Terpadu At Taufiq',
@@ -510,3 +510,49 @@ export function saveStoredApplicants(applicants: Applicant[]): void {
     console.error('Failed to save applicants', err);
   }
 }
+
+export const DEFAULT_ADMIN_SETTINGS: AdminSettings = {
+  academicYear: SCHOOL_INFO.academicYear,
+  whatsapp: SCHOOL_INFO.whatsapp,
+  email: SCHOOL_INFO.email,
+  phone: SCHOOL_INFO.phone,
+  address: SCHOOL_INFO.address,
+  bankName: SCHOOL_INFO.bankAccount.bank,
+  bankAccountNumber: SCHOOL_INFO.bankAccount.accountNumber,
+  bankAccountName: SCHOOL_INFO.bankAccount.accountName,
+  activeWave: 'OPEN_HOUSE',
+  isOpen: true,
+  quotas: {
+    TKIT_A: 40,
+    TKIT_B: 40,
+    SDIT: 120,
+    SMPIT: 96
+  },
+  adminPin: '123456',
+  requirePinToAccess: false,
+  announcementText: 'Pendaftaran PPDB SIT At Taufiq Tahun Ajaran 2027/2028 Resmi Dibuka! Dapatkan diskon uang pangkal s/d 60% pada periode Open House.'
+};
+
+const SETTINGS_STORAGE_KEY = 'ppdb_sit_attaufiq_settings_v1';
+
+export function getStoredAdminSettings(): AdminSettings {
+  try {
+    const raw = localStorage.getItem(SETTINGS_STORAGE_KEY);
+    if (!raw) {
+      localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(DEFAULT_ADMIN_SETTINGS));
+      return DEFAULT_ADMIN_SETTINGS;
+    }
+    return { ...DEFAULT_ADMIN_SETTINGS, ...JSON.parse(raw) };
+  } catch {
+    return DEFAULT_ADMIN_SETTINGS;
+  }
+}
+
+export function saveStoredAdminSettings(settings: AdminSettings): void {
+  try {
+    localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+  } catch (err) {
+    console.error('Failed to save admin settings', err);
+  }
+}
+

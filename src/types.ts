@@ -101,3 +101,21 @@ export interface Applicant {
   observationLocation?: string;
   adminNotes?: string;
 }
+
+export interface AdminSettings {
+  academicYear: string;
+  whatsapp: string;
+  email: string;
+  phone: string;
+  address: string;
+  bankName: string;
+  bankAccountNumber: string;
+  bankAccountName: string;
+  activeWave: WaveType;
+  isOpen: boolean;
+  quotas: Record<EducationLevel, number>;
+  adminPin: string;
+  requirePinToAccess: boolean;
+  announcementText?: string;
+}
+
